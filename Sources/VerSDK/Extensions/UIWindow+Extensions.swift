@@ -2,11 +2,7 @@ import UIKit
 
 extension UIApplication {
     func window() -> UIWindow? {
-        if let window = self.keyWindow {
-            return window
-        } else if let window = self.windows.first {
-            return window
-        } else { return nil }
+        return self.windows.filter { $0.isKeyWindow }.first
     }
 }
 

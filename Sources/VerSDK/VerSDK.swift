@@ -1,27 +1,26 @@
 import UIKit
+import Vision
 
 public class VerSDK {
-    public func run() {
+    public static let shared = VerSDK()
+    
+    public func textRecognition(_ callback: @escaping (Result<[String], Error>) -> Void) {
         guard let topController = UIApplication.shared.window()?.topViewController() else { return }
-        let controller = Controller(nibName: nil, bundle: nil)
+        let viewModel = RecognizeVM(callback: callback,
+                                    captureService: CaptureSessionService(),
+                                    permissionService: CheckPermissionsService())
+        let controller = RecognizeController(viewModel: viewModel)
         controller.modalPresentationStyle = .fullScreen
         topController.present(controller, animated: true, completion: nil)
     }
-    public static let shared = VerSDK()
-}
-
-public class Controller: UIViewController {
-   
-    public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nil, bundle: nil)
-    }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UIColor.green
+    public func faceDetection(_ callback: @escaping (Result<[VNFaceObservation], Error>) -> Void) {
+        guard let topController = UIApplication.shared.window()?.topViewController() else { return }
+        let viewModel = FaceDetectionVM(callback: callback,
+                                        captureService: CaptureSessionService(),
+                                        permissionService: CheckPermissionsService())
+        let controller = FaceDetectionController(viewModel: viewModel)
+        controller.modalPresentationStyle = .fullScreen
+        topController.present(controller, animated: true, completion: nil)
     }
 }
