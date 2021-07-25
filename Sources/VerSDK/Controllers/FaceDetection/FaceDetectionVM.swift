@@ -72,27 +72,6 @@ public final class FaceDetectionVM: NSObject {
             callback(.success(result))
         }
     }
-    
-    public func transformRect(fromRect: CGRect , toViewRect :UIView) -> CGRect {
-        //Convert Vision Frame to UIKit Frame
-        var toRect = CGRect()
-        toRect.size.width = fromRect.size.width * toViewRect.frame.size.width
-        toRect.size.height = fromRect.size.height * toViewRect.frame.size.height
-        toRect.origin.y = (toViewRect.frame.height) - (toViewRect.frame.height * fromRect.origin.y)
-        toRect.origin.y = toRect.origin.y - toRect.size.height
-        toRect.origin.x = (toViewRect.frame.width) - (toViewRect.frame.width * fromRect.origin.x)
-        toRect.origin.x = toRect.origin.x - toRect.size.width
-        return toRect
-        
-    }
-
-    public func createBoxView(withColor : UIColor) -> UIView {
-        let view = UIView()
-        view.layer.borderColor = withColor.cgColor
-        view.layer.borderWidth = 2
-        view.backgroundColor = UIColor.clear
-        return view
-    }
 }
 
 extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -109,20 +88,20 @@ extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {
         } catch {
             print(error)
         }
-        
+// TODO:
 //        if !takePicture {
-//            return //we have nothing to do with the image buffer
+//            return // We have nothing to do with the image buffer
 //        }
 //
-//        //try and get a CVImageBuffer out of the sample buffer
+//        // Try and get a CVImageBuffer out of the sample buffer
 //        guard let cvBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
 //            return
 //        }
 //
-//        //get a CIImage out of the CVImageBuffer
+//        // Get a CIImage out of the CVImageBuffer
 //        let ciImage = CIImage(cvImageBuffer: cvBuffer)
 //
-//        //get UIImage out of CIImage
+//        // Get UIImage out of CIImage
 //        let uiImage = UIImage(ciImage: ciImage)
 //
 //        DispatchQueue.main.async {

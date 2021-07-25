@@ -39,8 +39,8 @@ public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
             DispatchQueue.main.async {
                 if self.faceRectangle != nil { self.faceRectangle?.removeFromSuperview() }
                 guard rect != nil else { return }
-                self.faceRectangle = self.viewModel.createBoxView(withColor: UIColor.red)
-                self.faceRectangle!.frame = self.viewModel.transformRect(fromRect: rect!, toViewRect: self.view)
+                self.faceRectangle = OvalView()
+                self.faceRectangle!.frame = rect!.transformRect(toViewRect: self.view.frame)
                 self.view.addSubview(self.faceRectangle!)
             }
         }
