@@ -4,8 +4,8 @@ protocol CheckPermissionServiceProtocol {
     func checkPermissions(completion: @escaping (Result<Void, Error>) -> ())
 }
 
-public struct CheckPermissionsService: CheckPermissionServiceProtocol {
-    public func checkPermissions(completion: @escaping (Result<Void, Error>) -> ()) {
+struct CheckPermissionsService: CheckPermissionServiceProtocol {
+    func checkPermissions(completion: @escaping (Result<Void, Error>) -> ()) {
         // Check authorization status
         let authorizationStatus =  AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         switch authorizationStatus {

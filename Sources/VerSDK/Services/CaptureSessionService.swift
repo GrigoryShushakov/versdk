@@ -10,7 +10,7 @@ protocol CaptureSessionServiceProtocol {
     func switchCameraInput()
 }
 
-public final class CaptureSessionService: CaptureSessionServiceProtocol {
+final class CaptureSessionService: CaptureSessionServiceProtocol {
     var captureSession : AVCaptureSession!
     var backCamera : AVCaptureDevice!
     var frontCamera : AVCaptureDevice!
@@ -20,14 +20,14 @@ public final class CaptureSessionService: CaptureSessionServiceProtocol {
     var previewLayer : AVCaptureVideoPreviewLayer!
     var backCameraOn = true
     
-    public func stopSession() {
+    func stopSession() {
         captureSession.stopRunning()
         previewLayer.removeFromSuperlayer()
         captureSession = nil
         previewLayer = nil
     }
     
-    public func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
+    func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
                              view: UIView,
                              position: AVCaptureDevice.Position,
                              completion: (Result<Void, Error>) -> Void) {
@@ -120,7 +120,7 @@ public final class CaptureSessionService: CaptureSessionServiceProtocol {
         videoOutput.connections.first?.videoOrientation = .portrait
     }
     
-    public func switchCameraInput(){
+    func switchCameraInput() {
         // Reconfigure the input
         captureSession.beginConfiguration()
         if backCameraOn {

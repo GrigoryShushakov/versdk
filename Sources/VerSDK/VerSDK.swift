@@ -14,7 +14,7 @@ public class VerSDK {
         topController.present(controller, animated: true, completion: nil)
     }
     
-    public func faceDetection(_ callback: @escaping (Result<[VNFaceObservation], Error>) -> Void) {
+    public func faceDetection(_ callback: @escaping (Result<UIImage, Error>) -> Void) {
         guard let topController = UIApplication.shared.window()?.topViewController() else { return }
         let viewModel = FaceDetectionVM(callback: callback,
                                         captureService: CaptureSessionService(),

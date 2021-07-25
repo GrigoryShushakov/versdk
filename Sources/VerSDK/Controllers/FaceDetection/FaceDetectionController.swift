@@ -1,8 +1,8 @@
 import UIKit
 
-public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
+class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     
-    var faceRectangle: UIView?
+    var faceRectangle: OvalView?
     
     override func configure() {
         super.configure()
@@ -14,6 +14,7 @@ public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     private func buildUI(){
         view.addSubview(switchCameraButton)
         view.addSubview(closeButton)
+        view.addSubview(takeShotButton)
        
         NSLayoutConstraint.activate([
             switchCameraButton.widthAnchor.constraint(equalToConstant: Layout.buttonSize.width),
@@ -23,11 +24,17 @@ public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
             closeButton.widthAnchor.constraint(equalToConstant: Layout.buttonSize.width),
             closeButton.heightAnchor.constraint(equalToConstant: Layout.buttonSize.height),
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Layout.offset),
-            closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Layout.spacing)
+            closeButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: Layout.spacing),
+            takeShotButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Layout.takeShotButtonBottom),
+            takeShotButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            takeShotButton.widthAnchor.constraint(equalToConstant: Layout.takeShotButtonSize.width),
+            takeShotButton.heightAnchor.constraint(equalToConstant: Layout.takeShotButtonSize.height)
         ])
        
         switchCameraButton.addTarget(self, action: #selector(switchCamera), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(close), for: .touchUpInside)
+        takeShotButton.addTarget(self, action: #selector(takeShot), for: .touchUpInside)
+        takeShotButton.isEnabled = false
     }
     
     private func bindVM() {
@@ -37,10 +44,10 @@ public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
         viewModel.haveFaceRect.bind { [weak self] rect in
             guard let self = self else { return }
             DispatchQueue.main.async {
+                self.takeShotButton.isEnabled = rect != nil
                 if self.faceRectangle != nil { self.faceRectangle?.removeFromSuperview() }
                 guard rect != nil else { return }
-                self.faceRectangle = OvalView()
-                self.faceRectangle!.frame = rect!.transformRect(toViewRect: self.view.frame)
+                self.faceRectangle = OvalView(frame: rect!.transformRect(to: self.view.frame))
                 self.view.addSubview(self.faceRectangle!)
             }
         }
@@ -57,21 +64,11 @@ public class FaceDetectionController: BaseViewController<FaceDetectionVM> {
         viewModel.switchCameraInput()
     }
     
-    private let switchCameraButton : UIButton = {
-        let button = UIButton()
-        let image = UIImage(systemName: "arrow.triangle.2.circlepath.camera.fill")
-        button.setImage(image, for: .normal)
-        button.tintColor = UIColor.white
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    @objc private func takeShot() {
+        viewModel.takeShot = true
+    }
     
-    private let closeButton : UIButton = {
-        let button = UIButton()
-        let image = UIImage(systemName: "xmark.circle")
-        button.setImage(image, for: .normal)
-        button.tintColor = UIColor.white
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
+    private let switchCameraButton = UIButton().createButton(for: "arrow.triangle.2.circlepath.camera.fill", size: Layout.buttonSize.width / 2)
+    private let closeButton = UIButton().createButton(for: "xmark.circle", size: Layout.buttonSize.width / 2)
+    private let takeShotButton = UIButton().createButton(for: "largecircle.fill.circle", size: Layout.takeShotButtonSize.width)
 }

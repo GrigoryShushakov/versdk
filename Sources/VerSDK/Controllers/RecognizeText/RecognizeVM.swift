@@ -2,13 +2,15 @@ import UIKit
 import AVFoundation
 import Vision
 
-public final class RecognizeVM: NSObject {
+final class RecognizeVM: NSObject {
     var callback: ((Result<[String], Error>) -> Void)
     let captureService: CaptureSessionServiceProtocol
     let permissionService: CheckPermissionServiceProtocol
-    private var requests = [VNRequest]()
     
+    private var requests = [VNRequest]()
     let didClose: SimpleObservable<Bool> = SimpleObservable(false)
+    let haveFoundText: SimpleObservable<Bool?> = SimpleObservable(nil)
+    var takeShot = false
     
     init(callback: @escaping ((Result<[String], Error>) -> Void),
          captureService: CaptureSessionServiceProtocol,
@@ -19,7 +21,7 @@ public final class RecognizeVM: NSObject {
         self.permissionService = permissionService
     }
     
-    public func configure(_ view: UIView) {
+    func configure(_ view: UIView) {
         permissionService.checkPermissions { [weak self] result in
             guard let self = self else { return }
             
@@ -32,7 +34,7 @@ public final class RecognizeVM: NSObject {
         }
     }
     
-    private func startSession(_ view: UIView) {
+    func startSession(_ view: UIView) {
         captureService.startSession(delegate: self,
                                     view: view,
                                     position: .back,
@@ -48,11 +50,11 @@ public final class RecognizeVM: NSObject {
         setupVision()
     }
     
-    public func stopSession() {
+    func stopSession() {
         captureService.stopSession()
     }
     
-    public func switchCameraInput() {
+    func switchCameraInput() {
         captureService.switchCameraInput()
     }
     
@@ -66,15 +68,20 @@ public final class RecognizeVM: NSObject {
     private func textDetectionHandler(request: VNRequest, error: Error?) {
         guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
         let result = observations.compactMap { $0.topCandidates(1).first?.string }
+        haveFoundText.value = !result.isEmpty
         guard !result.isEmpty else { return }
-        callback(.success(result))
+        if takeShot {
+            takeShot = false
+            callback(.success(result))
+            didClose.value = true
+        }
     }
 }
 
 extension RecognizeVM: AVCaptureVideoDataOutputSampleBufferDelegate {
-    public func captureOutput(_ output: AVCaptureOutput,
-                              didOutput sampleBuffer: CMSampleBuffer,
-                              from connection: AVCaptureConnection) {
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
         
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {return}
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer,
