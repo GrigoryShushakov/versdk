@@ -6,11 +6,14 @@ final class FaceDetectionVM: NSObject {
     var callback: ((Result<UIImage, Error>) -> Void)
     let captureService: CaptureSessionServiceProtocol
     let permissionService: CheckPermissionServiceProtocol
+    var takeShot = false
     
+    // Vision requests for face detection
     private var requests = [VNRequest]()
+    
+    // Custom observables, for binding changes to ui layer
     let didClose: SimpleObservable<Bool> = SimpleObservable(false)
     let haveFaceRect: SimpleObservable<CGRect?> = SimpleObservable(nil)
-    var takeShot = false
     
     init(callback: @escaping ((Result<UIImage, Error>) -> Void),
          captureService: CaptureSessionServiceProtocol,
@@ -26,8 +29,8 @@ final class FaceDetectionVM: NSObject {
             guard let self = self else { return }
             
             if case let .failure(error) = result {
-                self.callback(.failure(error))
                 self.didClose.value = true
+                self.callback(.failure(error))
             } else {
                 self.startSession(view)
             }
@@ -42,8 +45,8 @@ final class FaceDetectionVM: NSObject {
             guard let self = self else { return }
                                             
             if case let .failure(error) = result {
-                self.callback(.failure(error))
                 self.didClose.value = true
+                self.callback(.failure(error))
             }
         })
 
@@ -104,9 +107,9 @@ extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {
             // Get UIImage out of CIImage
             let uiImage = UIImage(ciImage: ciImage)
 
+            self.didClose.value = true
             DispatchQueue.main.async {
                 self.callback(.success(uiImage))
-                self.didClose.value = true
             }
         }
     }

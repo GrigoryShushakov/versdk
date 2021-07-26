@@ -39,7 +39,8 @@ class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     
     private func bindVM() {
         viewModel.didClose.bind { [weak self] value in
-            if value { self?.close() }
+            guard let self = self else { return }
+            if value { self.close() }
         }
         viewModel.haveFaceRect.bind { [weak self] rect in
             guard let self = self else { return }

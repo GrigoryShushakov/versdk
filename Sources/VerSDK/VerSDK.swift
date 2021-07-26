@@ -1,5 +1,4 @@
 import UIKit
-import Vision
 
 public class VerSDK {
     public static let shared = VerSDK()

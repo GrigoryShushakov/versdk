@@ -37,11 +37,13 @@ class RecognizeController: BaseViewController<RecognizeVM> {
     
     private func bindVM() {
         viewModel.didClose.bind { [weak self] value in
-            if value { self?.close() }
+            guard let self = self else { return }
+            if value { self.close() }
         }
         viewModel.haveFoundText.bind { [weak self] value in
+            guard let self = self else { return }
             DispatchQueue.main.async {
-                self?.takeShotButton.isEnabled = value ?? false
+                self.takeShotButton.isEnabled = value ?? false
             }
         }
     }

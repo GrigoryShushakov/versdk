@@ -21,6 +21,7 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
     var backCameraOn = true
     
     func stopSession() {
+        guard captureSession != nil else { return }
         captureSession.stopRunning()
         previewLayer.removeFromSuperlayer()
         captureSession = nil
@@ -28,9 +29,9 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
     }
     
     func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
-                             view: UIView,
-                             position: AVCaptureDevice.Position,
-                             completion: (Result<Void, Error>) -> Void) {
+                      view: UIView,
+                      position: AVCaptureDevice.Position,
+                      completion: (Result<Void, Error>) -> Void) {
             
         // Init session
         let captureSession = AVCaptureSession()

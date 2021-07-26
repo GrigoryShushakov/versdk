@@ -6,11 +6,14 @@ final class RecognizeVM: NSObject {
     var callback: ((Result<[String], Error>) -> Void)
     let captureService: CaptureSessionServiceProtocol
     let permissionService: CheckPermissionServiceProtocol
+    var takeShot = false
     
+    // Vision requests for text cecognition
     private var requests = [VNRequest]()
+    
+    // Custom observables, for binding changes to ui layer
     let didClose: SimpleObservable<Bool> = SimpleObservable(false)
     let haveFoundText: SimpleObservable<Bool?> = SimpleObservable(nil)
-    var takeShot = false
     
     init(callback: @escaping ((Result<[String], Error>) -> Void),
          captureService: CaptureSessionServiceProtocol,
@@ -26,8 +29,8 @@ final class RecognizeVM: NSObject {
             guard let self = self else { return }
             
             if case let .failure(error) = result {
-                self.callback(.failure(error))
                 self.didClose.value = true
+                self.callback(.failure(error))
             } else {
                 self.startSession(view)
             }
@@ -42,8 +45,8 @@ final class RecognizeVM: NSObject {
             guard let self = self else { return }
                                             
             if case let .failure(error) = result {
-                self.callback(.failure(error))
                 self.didClose.value = true
+                self.callback(.failure(error))
             }
         })
 
@@ -72,8 +75,10 @@ final class RecognizeVM: NSObject {
         guard !result.isEmpty else { return }
         if takeShot {
             takeShot = false
-            callback(.success(result))
             didClose.value = true
+            DispatchQueue.main.async {
+                self.callback(.success(result))
+            }
         }
     }
 }
