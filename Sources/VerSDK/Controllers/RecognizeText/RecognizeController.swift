@@ -3,7 +3,9 @@ import AVFoundation
 
 class RecognizeController: BaseViewController<RecognizeVM> {
     
-    let recognizeServicesQueue = DispatchQueue(label: "VerSDK.recognizeServicesQueue")
+    private let recognizeServicesQueue = DispatchQueue(label: "VerSDK.recognizeServicesQueue")
+    private var previewLayer = AVCaptureVideoPreviewLayer()
+    private var boxesLayer = [CAShapeLayer]()
     
     override func configure() {
         super.configure()
@@ -48,15 +50,42 @@ class RecognizeController: BaseViewController<RecognizeVM> {
         }
         viewModel.haveFoundText.bind { [weak self] value in
             guard let self = self else { return }
+            
             DispatchQueue.main.async {
-                self.takeShotButton.isEnabled = value ?? false
+                
+                let boxes = self.viewModel.boxes.map { $0.transform(to: self.previewLayer.frame) }
+                
+                func draw(rect: CGRect, color: CGColor) {
+                    let layer = CAShapeLayer()
+                    layer.opacity = 0.5
+                    layer.borderColor = color
+                    layer.borderWidth = 1
+                    layer.frame = rect
+                    self.boxesLayer.append(layer)
+                    self.previewLayer.insertSublayer(layer, at: 1)
+                }
+                
+                func removeBoxes() {
+                    for layer in self.boxesLayer {
+                        layer.removeFromSuperlayer()
+                    }
+                    self.boxesLayer.removeAll()
+                }
+                
+
+                removeBoxes()
+                for rect in boxes {
+                    draw(rect: rect, color: UIColor.green.cgColor)
+                }
+                
+                    self.takeShotButton.isEnabled = value ?? false
             }
         }
     }
     
     private func setupPreviewLayer(_ session: AVCaptureSession) {
         // Insert preview layer
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer = AVCaptureVideoPreviewLayer(session: session)
         view.layer.insertSublayer(previewLayer, at: 0)
         previewLayer.frame = view.layer.frame
     }

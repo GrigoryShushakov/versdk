@@ -3,8 +3,8 @@ import AVFoundation
 
 class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     
-    let faceDetectionServicesQueue = DispatchQueue(label: "VerSDK.faceDetectionServicesQueue")
-    var faceRectangle: OvalView?
+    private let faceDetectionServicesQueue = DispatchQueue(label: "VerSDK.faceDetectionServicesQueue")
+    private var faceRectangle: OvalView?
     
     override func configure() {
         super.configure()

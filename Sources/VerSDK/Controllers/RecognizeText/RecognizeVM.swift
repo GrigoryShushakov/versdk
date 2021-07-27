@@ -11,6 +11,9 @@ final class RecognizeVM: NSObject {
     // Vision requests for text cecognition
     private var requests = [VNRequest]()
     
+    // Rectangles for showing detected areas
+    var boxes = [CGRect]()
+    
     // Custom observables, for binding changes to ui layer
     let didClose: SimpleObservable<Bool> = SimpleObservable(false)
     let haveFoundText: SimpleObservable<Bool?> = SimpleObservable(nil)
@@ -74,6 +77,9 @@ final class RecognizeVM: NSObject {
         let result = observations.compactMap { $0.topCandidates(1).first?.string }
         haveFoundText.value = !result.isEmpty
         guard !result.isEmpty else { return }
+        
+        boxes = observations.map{ $0.boundingBox }
+        
         if takeShot {
             takeShot = false
             didClose.value = true
