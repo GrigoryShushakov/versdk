@@ -53,7 +53,8 @@ class FaceDetectionController: BaseViewController<FaceDetectionVM> {
                 self.takeShotButton.isEnabled = rect != nil
                 if self.faceRectangle != nil { self.faceRectangle?.removeFromSuperview() }
                 guard rect != nil else { return }
-                self.faceRectangle = OvalView(frame: rect!.transformRect(to: self.view.frame))
+                let newRect = self.viewModel.transform(rect: rect!, to: self.view.frame)
+                self.faceRectangle = OvalView(frame: newRect)
                 self.view.addSubview(self.faceRectangle!)
             }
         }

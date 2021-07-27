@@ -1,8 +1,8 @@
-[![Swift 5.3](https://img.shields.io/badge/swift-4.2-red.svg?style=flat)](https://developer.apple.com/swift)
+[![Swift 5.1](https://img.shields.io/badge/swift-5.1-red.svg?style=flat)](https://developer.apple.com/swift)
 
 # VerSDK
 
-**VerSDK** is a Framework helped with recognition text in Documents and suitable take verification selfie.
+**VerSDK** is a Framework helped with recognition text in documents and suitable take verification selfie. The SDK calls the user interface for photography and returns the result of text recognition or face detection.
 
 
 ## Need Help?
@@ -27,49 +27,45 @@ VerSDK can be installed with [Swift Package Manager](https://swift.org/package-m
 
 [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app)
 
-### CocoaPods
-
-To install it, add the following line to your Podfile:
-
-```ruby
-pod 'VerSDK'
-```
-[Adding Pods to an Xcode project](https://guides.cocoapods.org/using/using-cocoapods.html)
-
 
 ## Usage
-1. Text recognition
+
+1. For text recognition please call `textRecognition` sdk method in your application.
+Method returns array of recognized strings or Error with localized description.
 
 ```
-VerSDK.shared.textRecognition { [weak self] result in
-    guard let self = self else { return }
+VerSDK.shared.textRecognition { result in
     switch result {
     case .success(let prediction):
         // Text recognition result - [String]
     case .failure(let error):
-        self.showError(error)
+        showError(error)
     }
 }
 ```
-2. Face detection
+2. For face detection please call `faceDetection` sdk method in your application.
+Method returns UIImage or Error with localized description.
 
 ```
-VerSDK.shared.faceDetection() { [weak self] result in
-    guard let self = self else { return }
+VerSDK.shared.faceDetection() { result in
     switch result {
     case .success(let image):
         // Face detection image - UIImage
     case .failure(let error):
-        self.showError(error)
+        showError(error)
     }
 }
 ```
+
+## Adding permissions
+
+VerSDK requires camera permissions for capturing photos. Your application is responsible to describe the reason why camera is used. You must add `NSCameraUsageDescription` value to info.plist of your application with the explanation of the usage.
 
 
 ## Requirements
 
 - iOS 13.0+
-- Swift 4+ (Library is written in Swift 5.3)
+- Swift 5.1+ (Library is written in Swift 5.3)
 
 
 ## Author

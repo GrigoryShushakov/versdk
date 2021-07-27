@@ -75,10 +75,11 @@ final class FaceDetectionVM: NSObject {
             haveFaceRect.value = result.first?.boundingBox
         }
     }
-// TODO:
-//    func transform(rect: CGRect, to viewRect :CGRect) -> CGRect {
-//        return VNImageRectForNormalizedRect(rect, Int(viewRect.width), Int(viewRect.height))
-//    }
+
+    func transform(rect: CGRect, to viewRect :CGRect) -> CGRect {
+        let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -1)
+        return VNImageRectForNormalizedRect(rect.applying(transform), Int(viewRect.width), Int(viewRect.height))
+    }
 }
 
 extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {

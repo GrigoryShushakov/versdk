@@ -112,6 +112,8 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
         session.addOutput(videoOutput)
         // Only portrait mode in use
         videoOutput.connections.first?.videoOrientation = .portrait
+        // Mirror the video stream for front camera
+        videoOutput.connections.first?.isVideoMirrored = !backCameraOn
     }
     
     func switchCameraInput() {
