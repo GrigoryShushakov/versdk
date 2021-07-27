@@ -1,12 +1,18 @@
 import UIKit
+import AVFoundation
 
 class RecognizeController: BaseViewController<RecognizeVM> {
+    
+    let recognizeServicesQueue = DispatchQueue(label: "VerSDK.recognizeServicesQueue")
     
     override func configure() {
         super.configure()
         buildUI()
         bindVM()
-        viewModel.configure(view)
+        setupPreviewLayer(viewModel.captureService.captureSession)
+        recognizeServicesQueue.async {
+            self.viewModel.configure()
+        }
     }
     
     private func buildUI(){
@@ -48,15 +54,26 @@ class RecognizeController: BaseViewController<RecognizeVM> {
         }
     }
     
+    private func setupPreviewLayer(_ session: AVCaptureSession) {
+        // Insert preview layer
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        view.layer.insertSublayer(previewLayer, at: 0)
+        previewLayer.frame = view.layer.frame
+    }
+    
     @objc private func close(){
-        viewModel.stopSession()
+        recognizeServicesQueue.async {
+            self.viewModel.stopSession()
+        }
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
     }
     
     @objc private func switchCamera(){
-        viewModel.switchCameraInput()
+        recognizeServicesQueue.async {
+            self.viewModel.switchCameraInput()
+        }
     }
     
     @objc private func takeShot() {

@@ -3,38 +3,31 @@ import AVFoundation
 
 protocol CaptureSessionServiceProtocol {
     func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
-                      view: UIView,
                       position: AVCaptureDevice.Position,
                       completion: ((Result<Void,Error>) -> Void))
     func stopSession()
     func switchCameraInput()
+    var captureSession: AVCaptureSession { get }
 }
 
 final class CaptureSessionService: CaptureSessionServiceProtocol {
-    var captureSession : AVCaptureSession!
-    var backCamera : AVCaptureDevice!
-    var frontCamera : AVCaptureDevice!
-    var backInput : AVCaptureInput!
-    var frontInput : AVCaptureInput!
-    var videoOutput : AVCaptureVideoDataOutput!
-    var previewLayer : AVCaptureVideoPreviewLayer!
+    var captureSession = AVCaptureSession()
+    var backCamera: AVCaptureDevice!
+    var frontCamera: AVCaptureDevice!
+    var backInput: AVCaptureInput!
+    var frontInput: AVCaptureInput!
+    var videoOutput: AVCaptureVideoDataOutput!
     var backCameraOn = true
     
     func stopSession() {
-        guard captureSession != nil else { return }
         captureSession.stopRunning()
-        previewLayer.removeFromSuperlayer()
-        captureSession = nil
-        previewLayer = nil
+        videoOutput.setSampleBufferDelegate(nil, queue: nil)
     }
     
     func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
-                      view: UIView,
                       position: AVCaptureDevice.Position,
                       completion: (Result<Void, Error>) -> Void) {
-            
-        // Init session
-        let captureSession = AVCaptureSession()
+        
         // Start configuration
         captureSession.beginConfiguration()
         // Setup inputs
@@ -42,10 +35,6 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
             try self.setupInputs(captureSession, position)
         } catch {
             completion(.failure(error))
-        }
-        // Setup preview layer
-        DispatchQueue.main.async {
-            self.setupPreviewLayer(captureSession, view)
         }
         // Setup output
         do {
@@ -57,7 +46,6 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
         captureSession.commitConfiguration()
         // Start running session
         captureSession.startRunning()
-        self.captureSession = captureSession
     }
     
     private func searchCamera(deviceTypes: [AVCaptureDevice.DeviceType],
@@ -85,6 +73,11 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
         do {
             backInput = try AVCaptureDeviceInput(device: backCamera)
             frontInput = try AVCaptureDeviceInput(device: frontCamera)
+            // Set zoom and autofocus to help focus on very small text.
+            try backCamera.lockForConfiguration()
+            backCamera.videoZoomFactor = 2
+            backCamera.autoFocusRangeRestriction = .near
+            backCamera.unlockForConfiguration()
         } catch {
             throw AVSessionError.deviceInputInitFailure(error.localizedDescription)
         }
@@ -139,12 +132,5 @@ final class CaptureSessionService: CaptureSessionServiceProtocol {
         videoOutput.connections.first?.isVideoMirrored = !backCameraOn
         // Commit config
         captureSession.commitConfiguration()
-    }
-    
-    private func setupPreviewLayer(_ session: AVCaptureSession, _ view: UIView){
-        // Insert preview layer
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        view.layer.insertSublayer(previewLayer, at: 0)
-        previewLayer.frame = view.layer.frame
     }
 }

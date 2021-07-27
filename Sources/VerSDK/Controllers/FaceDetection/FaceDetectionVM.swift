@@ -24,7 +24,7 @@ final class FaceDetectionVM: NSObject {
         self.permissionService = permissionService
     }
     
-    func configure(_ view: UIView) {
+    func configure() {
         permissionService.checkPermissions { [weak self] result in
             guard let self = self else { return }
             
@@ -32,14 +32,13 @@ final class FaceDetectionVM: NSObject {
                 self.didClose.value = true
                 self.callback(.failure(error))
             } else {
-                self.startSession(view)
+                self.startSession()
             }
         }
     }
     
-    private func startSession(_ view: UIView) {
+    private func startSession() {
         captureService.startSession(delegate: self,
-                                    view: view,
                                     position: .front,
                                     completion: { [weak self] result in
             guard let self = self else { return }
@@ -55,6 +54,7 @@ final class FaceDetectionVM: NSObject {
     
     func stopSession() {
         captureService.stopSession()
+        requests = []
     }
     
     func switchCameraInput() {

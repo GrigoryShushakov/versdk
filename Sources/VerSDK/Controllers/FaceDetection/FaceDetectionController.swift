@@ -1,14 +1,19 @@
 import UIKit
+import AVFoundation
 
 class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     
+    let faceDetectionServicesQueue = DispatchQueue(label: "VerSDK.faceDetectionServicesQueue")
     var faceRectangle: OvalView?
     
     override func configure() {
         super.configure()
         buildUI()
         bindVM()
-        viewModel.configure(view)
+        setupPreviewLayer(viewModel.captureService.captureSession)
+        faceDetectionServicesQueue.async {
+            self.viewModel.configure()
+        }
     }
     
     private func buildUI(){
@@ -54,15 +59,26 @@ class FaceDetectionController: BaseViewController<FaceDetectionVM> {
         }
     }
     
+    private func setupPreviewLayer(_ session: AVCaptureSession) {
+        // Insert preview layer
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        view.layer.insertSublayer(previewLayer, at: 0)
+        previewLayer.frame = view.layer.frame
+    }
+    
     @objc private func close(){
-        viewModel.stopSession()
+        faceDetectionServicesQueue.async {
+            self.viewModel.stopSession()
+        }
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
     }
     
     @objc private func switchCamera(){
-        viewModel.switchCameraInput()
+        faceDetectionServicesQueue.async {
+            self.viewModel.switchCameraInput()
+        }
     }
     
     @objc private func takeShot() {

@@ -16,15 +16,15 @@ final class ViewModelTests: XCTestCase {
         let viewModel = RecognizeVM(callback: {_ in },
                                     captureService: captureService,
                                     permissionService: permissionService)
-        viewModel.configure(UIView())
+        viewModel.configure()
         XCTAssert(viewModel.takeShot == false)
         XCTAssertNil(viewModel.haveFoundText.value)
     }
 }
 
 private class CaptureSessionServiceMock: CaptureSessionServiceProtocol {
+    var captureSession: AVCaptureSession = AVCaptureSession()
     func startSession(delegate: AVCaptureVideoDataOutputSampleBufferDelegate,
-                      view: UIView,
                       position: AVCaptureDevice.Position,
                       completion: ((Result<Void, Error>) -> Void)) {}
     func stopSession() {}

@@ -24,7 +24,7 @@ final class RecognizeVM: NSObject {
         self.permissionService = permissionService
     }
     
-    func configure(_ view: UIView) {
+    func configure() {
         permissionService.checkPermissions { [weak self] result in
             guard let self = self else { return }
             
@@ -32,14 +32,13 @@ final class RecognizeVM: NSObject {
                 self.didClose.value = true
                 self.callback(.failure(error))
             } else {
-                self.startSession(view)
+                self.startSession()
             }
         }
     }
     
-    func startSession(_ view: UIView) {
+    func startSession() {
         captureService.startSession(delegate: self,
-                                    view: view,
                                     position: .back,
                                     completion: { [weak self] result in
             guard let self = self else { return }
@@ -55,6 +54,7 @@ final class RecognizeVM: NSObject {
     
     func stopSession() {
         captureService.stopSession()
+        requests = []
     }
     
     func switchCameraInput() {
@@ -64,6 +64,7 @@ final class RecognizeVM: NSObject {
     private func setupVision() {
         let textRequest = VNRecognizeTextRequest(completionHandler: self.textDetectionHandler)
         textRequest.recognitionLevel = .accurate
+        textRequest.usesLanguageCorrection = false
         textRequest.recognitionLanguages = ["ee_EE", "en_US"]
         self.requests = [textRequest]
     }
