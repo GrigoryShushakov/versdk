@@ -1,6 +1,6 @@
 import UIKit
 
-public class BaseViewController<T>: UIViewController {
+class BaseViewController<T>: UIViewController {
     
     private(set) var viewModel: T
     

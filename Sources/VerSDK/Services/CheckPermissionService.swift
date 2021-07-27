@@ -6,7 +6,7 @@ protocol CheckPermissionServiceProtocol {
 
 struct CheckPermissionsService: CheckPermissionServiceProtocol {
     func checkPermissions(completion: @escaping (Result<Void, Error>) -> ()) {
-        // Check authorization status
+        // Check camera authorization status
         let authorizationStatus =  AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
         switch authorizationStatus {
           case .authorized:

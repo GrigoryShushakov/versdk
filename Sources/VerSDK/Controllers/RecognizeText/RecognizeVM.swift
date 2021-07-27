@@ -8,7 +8,7 @@ final class RecognizeVM: NSObject {
     let permissionService: CheckPermissionServiceProtocol
     var takeShot = false
     
-    // Vision requests for text cecognition
+    // Vision requests for text recognition
     private var requests = [VNRequest]()
     
     // Custom observables, for binding changes to ui layer

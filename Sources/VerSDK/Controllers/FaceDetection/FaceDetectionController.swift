@@ -3,8 +3,8 @@ import AVFoundation
 
 class FaceDetectionController: BaseViewController<FaceDetectionVM> {
     
-    let faceDetectionServicesQueue = DispatchQueue(label: "VerSDK.faceDetectionServicesQueue")
-    var faceRectangle: OvalView?
+    private let faceDetectionServicesQueue = DispatchQueue(label: "VerSDK.faceDetectionServicesQueue", qos: .userInitiated)
+    private var faceRectangle: OvalView?
     
     override func configure() {
         super.configure()
@@ -53,8 +53,8 @@ class FaceDetectionController: BaseViewController<FaceDetectionVM> {
                 self.takeShotButton.isEnabled = rect != nil
                 if self.faceRectangle != nil { self.faceRectangle?.removeFromSuperview() }
                 guard rect != nil else { return }
-                let newRect = self.viewModel.transform(rect: rect!, to: self.view.frame)
-                self.faceRectangle = OvalView(frame: newRect)
+                let uikitRect = rect!.transform(to: self.view.frame)
+                self.faceRectangle = OvalView(frame: uikitRect)
                 self.view.addSubview(self.faceRectangle!)
             }
         }
@@ -67,16 +67,14 @@ class FaceDetectionController: BaseViewController<FaceDetectionVM> {
         previewLayer.frame = view.layer.frame
     }
     
-    @objc private func close(){
-        faceDetectionServicesQueue.async {
-            self.viewModel.stopSession()
-        }
+    @objc private func close() {
+        self.viewModel.stopSession()
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
     }
     
-    @objc private func switchCamera(){
+    @objc private func switchCamera() {
         faceDetectionServicesQueue.async {
             self.viewModel.switchCameraInput()
         }

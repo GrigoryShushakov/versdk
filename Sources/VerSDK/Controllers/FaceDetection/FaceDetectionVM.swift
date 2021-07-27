@@ -69,16 +69,12 @@ final class FaceDetectionVM: NSObject {
     private func faceDetectionHandler(request: VNRequest, error: Error?) {
         guard let observations = request.results as? [VNFaceObservation] else { return }
         let result = observations.compactMap { $0 }
+        // Only one face accepted
         if result.isEmpty || result.count > 1 {
             haveFaceRect.value = nil
         } else {
             haveFaceRect.value = result.first?.boundingBox
         }
-    }
-
-    func transform(rect: CGRect, to viewRect :CGRect) -> CGRect {
-        let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -1)
-        return VNImageRectForNormalizedRect(rect.applying(transform), Int(viewRect.width), Int(viewRect.height))
     }
 }
 
@@ -87,7 +83,7 @@ extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {
                        didOutput sampleBuffer: CMSampleBuffer,
                        from connection: AVCaptureConnection) {
         
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {return}
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer,
                                                         orientation: .up,
                                                         options: [:])
@@ -101,11 +97,7 @@ extension FaceDetectionVM: AVCaptureVideoDataOutputSampleBufferDelegate {
             takeShot = false
             // Try and get a CVImageBuffer out of the sample buffer
             guard let cvBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
-            // Get a CIImage out of the CVImageBuffer
             let ciImage = CIImage(cvImageBuffer: cvBuffer)
-
-            // Get UIImage out of CIImage
             let uiImage = UIImage(ciImage: ciImage)
 
             self.didClose.value = true

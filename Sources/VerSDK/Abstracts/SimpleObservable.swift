@@ -1,4 +1,4 @@
-public final class SimpleObservable<T> {
+final class SimpleObservable<T> {
     
     var value: T {
         didSet { subscriber?(value) }

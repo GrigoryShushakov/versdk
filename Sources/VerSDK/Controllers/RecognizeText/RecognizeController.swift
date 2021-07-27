@@ -3,7 +3,7 @@ import AVFoundation
 
 class RecognizeController: BaseViewController<RecognizeVM> {
     
-    let recognizeServicesQueue = DispatchQueue(label: "VerSDK.recognizeServicesQueue")
+    private let recognizeServicesQueue = DispatchQueue(label: "VerSDK.recognizeServicesQueue", qos: .userInitiated)
     
     override func configure() {
         super.configure()
@@ -61,16 +61,14 @@ class RecognizeController: BaseViewController<RecognizeVM> {
         previewLayer.frame = view.layer.frame
     }
     
-    @objc private func close(){
-        recognizeServicesQueue.async {
-            self.viewModel.stopSession()
-        }
+    @objc private func close() {
+        self.viewModel.stopSession()
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
     }
     
-    @objc private func switchCamera(){
+    @objc private func switchCamera() {
         recognizeServicesQueue.async {
             self.viewModel.switchCameraInput()
         }
