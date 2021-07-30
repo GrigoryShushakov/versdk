@@ -11,7 +11,10 @@ final class RecognizeVM: NSObject {
     // Vision requests for text cecognition
     private var requests = [VNRequest]()
     
-    // Rectangles for showing detected areas
+    // Preview frame rect for transformations
+    var previewFrame = CGRect()
+    
+    // Rectangles for showing detected areas, UIKit coordinates
     var boxes = [CGRect]()
     
     // Custom observables, for binding changes to ui layer
@@ -27,7 +30,8 @@ final class RecognizeVM: NSObject {
         self.permissionService = permissionService
     }
     
-    func configure() {
+    func configure(_ previewRect: CGRect) {
+        self.previewFrame = previewRect
         permissionService.checkPermissions { [weak self] result in
             guard let self = self else { return }
             
@@ -75,10 +79,8 @@ final class RecognizeVM: NSObject {
     private func textDetectionHandler(request: VNRequest, error: Error?) {
         guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
         let result = observations.compactMap { $0.topCandidates(1).first?.string }
+        boxes = result.isEmpty ? [] : observations.map{ $0.boundingBox }.map { $0.transform(to: previewFrame) }
         haveFoundText.value = !result.isEmpty
-        guard !result.isEmpty else { return }
-        
-        boxes = observations.map{ $0.boundingBox }
         
         if takeShot {
             takeShot = false
