@@ -16,9 +16,9 @@ final class ViewModelTests: XCTestCase {
         let viewModel = RecognizeVM(callback: {_ in },
                                     captureService: captureService,
                                     permissionService: permissionService)
-        viewModel.configure()
         XCTAssert(viewModel.takeShot == false)
         XCTAssertNil(viewModel.haveFoundText.value)
+        XCTAssertTrue(viewModel.boxes.isEmpty)
     }
 }
 
