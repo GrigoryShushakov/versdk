@@ -1,10 +1,10 @@
 import AVFoundation
 
-protocol CheckPermissionServiceProtocol {
+protocol CheckPermissionProtocol {
     func checkPermissions(completion: @escaping (Result<Void, Error>) -> ())
 }
 
-struct CheckPermissionsService: CheckPermissionServiceProtocol {
+extension CheckPermissionProtocol {
     func checkPermissions(completion: @escaping (Result<Void, Error>) -> ()) {
         // Check camera authorization status
         let authorizationStatus =  AVCaptureDevice.authorizationStatus(for: AVMediaType.video)

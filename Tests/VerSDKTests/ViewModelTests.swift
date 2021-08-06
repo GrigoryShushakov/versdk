@@ -5,17 +5,20 @@ import AVFoundation
 final class ViewModelTests: XCTestCase {
     
     var captureService: CaptureSessionServiceProtocol!
-    var permissionService: CheckPermissionServiceProtocol!
     
     override func setUpWithError() throws {
-        permissionService = CheckPermissionServiceMock()
         captureService = CaptureSessionServiceMock()
     }
 
     func testViewModel() {
         let viewModel = RecognizeVM(callback: {_ in },
-                                    captureService: captureService,
-                                    permissionService: permissionService)
+                                    captureService: captureService)
+        viewModel.checkPermissions { result in
+            guard case .success(let value) = result else {
+                return XCTFail("Expected to be a success but got a failure with \(result)")
+            }
+            XCTAssertNotNil(value)
+        }
         XCTAssert(viewModel.takeShot == false)
         XCTAssertNil(viewModel.haveFoundText.value)
         XCTAssertTrue(viewModel.boxes.isEmpty)
@@ -29,8 +32,4 @@ private class CaptureSessionServiceMock: CaptureSessionServiceProtocol {
                       completion: ((Result<Void, Error>) -> Void)) {}
     func stopSession() {}
     func switchCameraInput() {}
-}
-
-private class CheckPermissionServiceMock: CheckPermissionServiceProtocol {
-    func checkPermissions(completion: @escaping (Result<Void, Error>) -> ()) {}
 }

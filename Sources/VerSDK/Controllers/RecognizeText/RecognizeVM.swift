@@ -2,10 +2,9 @@ import UIKit
 import AVFoundation
 import Vision
 
-final class RecognizeVM: NSObject {
+final class RecognizeVM: NSObject, CheckPermissionProtocol {
     var callback: ((Result<[String], Error>) -> Void)
     let captureService: CaptureSessionServiceProtocol
-    let permissionService: CheckPermissionServiceProtocol
     var takeShot = false
     
     // Vision requests for text recognition
@@ -22,17 +21,15 @@ final class RecognizeVM: NSObject {
     let haveFoundText: SimpleObservable<Bool?> = SimpleObservable(nil)
     
     init(callback: @escaping ((Result<[String], Error>) -> Void),
-         captureService: CaptureSessionServiceProtocol,
-         permissionService: CheckPermissionServiceProtocol) {
+         captureService: CaptureSessionServiceProtocol) {
         
         self.callback = callback
         self.captureService = captureService
-        self.permissionService = permissionService
     }
     
     func configure(_ previewRect: CGRect) {
         self.previewFrame = previewRect
-        permissionService.checkPermissions { [weak self] result in
+        checkPermissions { [weak self] result in
             guard let self = self else { return }
             
             if case let .failure(error) = result {

@@ -2,10 +2,9 @@ import UIKit
 import AVFoundation
 import Vision
 
-final class FaceDetectionVM: NSObject {
+final class FaceDetectionVM: NSObject, CheckPermissionProtocol {
     var callback: ((Result<UIImage, Error>) -> Void)
     let captureService: CaptureSessionServiceProtocol
-    let permissionService: CheckPermissionServiceProtocol
     var takeShot = false
     
     // Preview frame rect for transformations
@@ -27,17 +26,15 @@ final class FaceDetectionVM: NSObject {
     let notYawed: SimpleObservable<Bool> = SimpleObservable(false)
     
     init(callback: @escaping ((Result<UIImage, Error>) -> Void),
-         captureService: CaptureSessionServiceProtocol,
-         permissionService: CheckPermissionServiceProtocol) {
+         captureService: CaptureSessionServiceProtocol) {
         
         self.callback = callback
         self.captureService = captureService
-        self.permissionService = permissionService
     }
     
     func configure(_ previewRect: CGRect) {
         self.previewFrame = previewRect
-        permissionService.checkPermissions { [weak self] result in
+        checkPermissions { [weak self] result in
             guard let self = self else { return }
             
             if case let .failure(error) = result {
